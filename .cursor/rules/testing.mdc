@@ -1,0 +1,29 @@
+---
+description: Follow this rule when writing tests
+globs: **/*.svelte.{spec,test}.ts,**/*.{spec,test}.ts,**/*.feature,e2e/**/*.ts
+alwaysApply: false
+---
+
+## Guidelines
+- Always write the test first
+
+## e2e tests
+- Belong in the 'e2e/' folder and should be written using a BDD style.
+- Assume NO KNOWLEDGE of any implementation and should be written exclusively using the user interface.
+- Should be written in terms of behaviours with as little reference to low-level details as possible.
+- Steps are written using playwright.
+
+## client tests
+- Belong in files marked **/*.svelte.spec.ts
+- test client interaction behaviour eg a pressed button causes the ui to change.
+- Are written using vitest, vitest/browser, vitest-browser-svelte.
+- Interaction with the ui is tested.
+- Can be minimally set up / torn down using implmentation details where needed.
+
+## integration tests
+- Belong in files marked **/*.svelte.test.ts.
+- Test cross-cutting behaviour eg state containers and respository interaction.
+
+## unit tests
+- Belong in **/*.test.ts files.
+- Test pure functions with no dependencies.
