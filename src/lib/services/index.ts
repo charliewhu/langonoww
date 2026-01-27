@@ -1,17 +1,16 @@
 import * as domain from '$lib/domain'
 
 export interface IRepository<T> {
-	findById(id: string): T | undefined
-	findAll(): T[]
+	get(): T
 	save(entity: T): void
 }
 
 export function createText(
 	repo: IRepository<domain.Reader>,
-	id: string,
+	// id: string,
 	...payload: ConstructorParameters<typeof domain.Text>
 ) {
-	const reader = repo.findById(id)
+	const reader = repo.get()
 
 	if (!reader) return
 
