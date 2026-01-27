@@ -53,7 +53,7 @@ export default defineConfig({
 				extends: './vite.config.ts',
 				test: {
 					// unit tests (*.test.ts)
-					name: 'server',
+					name: 'unit',
 					environment: 'node',
 					include: ['src/**/*.test.{js,ts}'],
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
