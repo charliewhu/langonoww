@@ -1,2 +1,10 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
+
+@plugin 'daisyui' {
+  /* This prevents output during the build process */
+  logs: false;
+  themes:
+    light --default,
+    dark --prefersdark;
+}
