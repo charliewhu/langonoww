@@ -1,11 +1,14 @@
 // import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas'
 import { createStore } from 'tinybase/with-schemas'
-import type { OptionalTablesSchema } from 'tinybase/with-schemas'
 
 // let dbInitialized = $state(false)
 
 export const tablesSchema = {
+	readers: {
+		id: { type: 'string' },
+	},
 	texts: {
+		reader: { type: 'string' },
 		title: { type: 'string' },
 		content: { type: 'string' },
 	},
@@ -16,10 +19,11 @@ export const tablesSchema = {
 		order: { type: 'number' },
 	},
 	words: {
+		reader: { type: 'string' },
 		name: { type: 'string' },
 		status: { type: 'string', default: 'unknown' },
 	},
-} satisfies OptionalTablesSchema
+} as const
 
 const store = createStore().setTablesSchema(tablesSchema)
 
@@ -40,4 +44,4 @@ const store = createStore().setTablesSchema(tablesSchema)
 
 // export const isDbInitialized = () => dbInitialized
 
-export { store as db }
+export { store }

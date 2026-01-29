@@ -1,12 +1,15 @@
 import * as domain from '$lib/domain'
+import type { IRepository } from '$lib/services/uow'
 
-export interface IRepository<T> {
-	get(): T
-	save(entity: T): void
+export interface IUnitOfWork {
+	readers: IRepository<domain.Reader>
+	begin(): Promise<void>
+	commit(): Promise<void>
+	rollback(): Promise<void>
 }
 
 export function createText(
-	repo: IRepository<domain.Reader>,
+	uow: IUnitOfWork,
 	// id: string,
 	...payload: ConstructorParameters<typeof domain.Text>
 ) {

@@ -1,10 +1,10 @@
 export class Reader {
-	// readonly id: string
+	readonly id: string
 	#texts: Text[]
 	#words: Word[]
 
 	constructor(id?: string, texts: Text[] = [], words: Word[] = []) {
-		// this.id = id ?? crypto.randomUUID()
+		this.id = id ?? crypto.randomUUID()
 		this.#texts = texts
 		this.#words = words
 	}
