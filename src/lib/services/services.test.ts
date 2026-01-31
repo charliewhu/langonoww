@@ -1,57 +1,69 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import * as domain from '$lib/domain'
 import * as services from '$lib/services'
 import { store } from '$lib/adapters/db'
-import * as domain from '$lib/domain'
 import TinybaseUOW from './uow'
 
-class FakeRepository<T> {
-	private data: Map<string, T> = new Map()
+class MockRepository<T> {
+	private items = new Map<string, T>()
 
-	get() {
-		// will only be 1 Reader in data
-		return Array.from(this.data.values())[0]
+	get(id: string) {
+		/* return item or throw */
 	}
-
 	save(entity: T) {
-		this.data.set((entity as any).id, entity)
+		/* store entity */
+	}
+	getAll() {
+		/* helper for tests */
 	}
 }
 
+class MockUnitOfWork {
+	readers: MockRepository<domain.Reader>
+
+	constructor() {
+		this.readers = new MockRepository<domain.Reader>()
+	}
+
+	async begin() {}
+	async commit() {}
+	async rollback() {}
+}
+
 describe('services', () => {
+	const readerId = '1'
 	const title = 'title'
 	const content = 'New text content'
 
 	let uow: TinybaseUOW
 
-	beforeEach(() => {
-		uow = new TinybaseUOW()
+	beforeEach(async () => {
+		uow = await TinybaseUOW.create()
+		store.delTables() // ensure empty store
 	})
 
-	it('can load from database', async () => {
-		// arrange
-		const id = '1'
-		store.addRow('readers', { id })
-		store.addRow('texts', { reader: id, title, content })
-		store.addRow('words', { reader: id, name: 'word' })
-
-		const texts = store.getTable('texts')
-		console.log(Object.values(texts))
-
-		// act
-		const reader = uow.readers.get(id)
-
-		// assert
-		expect(reader.id).toEqual(id)
-		expect(reader.texts).toHaveLength(1)
-		expect(reader.words).toHaveLength(3)
-	})
-
-	it.skip('adds to repo', async () => {
-		const text = services.createText(uow, { title, content })
+	it('adds to repo', async () => {
+		const text = services.createText(uow, readerId, { title, content })
 
 		expect(text).toBeDefined()
 		expect(text!.title).toEqual(title)
 
-		expect(Object.keys(store.getTable('texts'))).toHaveLength(3)
+		const texts = Object.values(store.getTable('texts'))
+		expect(texts).toHaveLength(1)
+		const words = Object.values(store.getTable('words'))
+		expect(words).toHaveLength(3)
+	})
+
+	it('gets reader', async () => {
+		const text = services.createText(uow, readerId, { title, content })
+
+		const title2 = 'another title'
+		services.createText(uow, readerId, { title: title2, content: 'other stuff' })
+
+		const r = services.getReader(uow, readerId)
+
+		expect(r.texts.length).toEqual(2)
+		expect(r.texts[0].title).toEqual(title)
+		expect(r.texts[1].title).toEqual(title2)
 	})
 })

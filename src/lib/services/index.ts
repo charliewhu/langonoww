@@ -8,17 +8,23 @@ export interface IUnitOfWork {
 	rollback(): Promise<void>
 }
 
+export function getReader(uow: IUnitOfWork, id: string) {
+	const reader = uow.readers.get(id)
+	return reader
+}
+
 export function createText(
 	uow: IUnitOfWork,
-	// id: string,
+	id: string,
 	...payload: ConstructorParameters<typeof domain.Text>
 ) {
-	const reader = repo.get()
+	const reader = uow.readers.get(id)
 
 	if (!reader) return
 
 	const text = reader.addText(payload[0])
-	repo.save(reader)
+
+	uow.readers.save(reader)
 
 	return text
 }
