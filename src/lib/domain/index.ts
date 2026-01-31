@@ -12,8 +12,6 @@ export class Reader {
 	addText(...text: ConstructorParameters<typeof Text>) {
 		const params = text[0]
 
-		if (params.title === '' || params.content === '') return
-
 		const newText = new Text(params)
 		const parsedWords = newText.parseRawContent()
 

@@ -1,7 +1,8 @@
-// import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas'
+import { createIndexedDbPersister } from 'tinybase/persisters/persister-indexed-db/with-schemas'
 import { createStore } from 'tinybase/with-schemas'
 
-// let dbInitialized = $state(false)
+let dbInitialized = false
+let initPromise: Promise<void> | null = null
 
 export const tablesSchema = {
 	readers: {
@@ -27,21 +28,26 @@ export const tablesSchema = {
 
 const store = createStore().setTablesSchema(tablesSchema)
 
-// const indexedDbPersister = createIndexedDbPersister(store, 'langonoww')
+const indexedDbPersister = createIndexedDbPersister(store, 'langonoww')
 
-// async function initDb() {
-// 	if (dbInitialized) return
-// 	try {
-// 		await indexedDbPersister.startAutoLoad()
-// 		await indexedDbPersister.startAutoSave()
-// 		dbInitialized = true
-// 	} catch (error) {
-// 		console.error('Failed to initialize database:', error)
-// 	}
-// }
+async function initDb() {
+	if (dbInitialized) return
+	try {
+		await indexedDbPersister.startAutoLoad()
+		await indexedDbPersister.startAutoSave()
+		dbInitialized = true
+	} catch (error) {
+		console.error('Failed to initialize database:', error)
+	}
+}
 
-// void initDb()
+if (!initPromise) {
+	initPromise = initDb()
+}
 
-// export const isDbInitialized = () => dbInitialized
+export const waitForDb = initPromise
+
+// TODO: remove hack, only 1 user with 1 language for now
+store.addRow('readers', { id: '1' })
 
 export { store }

@@ -1,7 +1,6 @@
-import * as domain from '$lib/domain'
+import { Reader, Text, Word } from '$lib/domain'
 import type { NoValuesSchema, Store } from 'tinybase/with-schemas'
 import type { tablesSchema } from './db'
-import type { TablesSchema } from 'tinybase'
 
 export interface IRepository<T> {
 	get(id: string): T
@@ -26,23 +25,70 @@ export class TinybaseRepository<S extends [typeof tablesSchema, NoValuesSchema]>
 		const dbTextWords = this.db.getTable('text_words')
 
 		// construct domain Reader object
-		const reader = new domain.Reader(id)
+		const reader = new Reader(id)
 
 		// add nested objects
 		// TODO: performance concerns here?
-		// make async or create texts, words, textWords directly
-		// from db data?
-		Object.entries(dbTexts).map(([id, row]) =>
-			reader.addText({ title: row.title!, content: row.content! }),
-		)
+		const texts = Object.entries(dbTexts).map(([textId, row]) => {
+			const text = new Text({ id: textId, title: row.title!, content: row.content! })
+
+			// Add text words for this text
+			const textWordsForText = Object.entries(dbTextWords).filter(
+				([_, textWordRow]) => textWordRow.text === textId,
+			)
+
+			textWordsForText.forEach(([textWordId, textWordRow]) => {
+				// Find the corresponding word
+				const wordId = textWordRow.word
+				if (wordId) {
+					const wordRow = dbWords[wordId]
+					if (wordRow) {
+						const word = new Word({ id: wordId, name: wordRow.name! })
+						word.status = wordRow.status as 'known' | 'unknown' | 'difficult'
+						text.addWord({
+							id: textWordId,
+							name: textWordRow.name!,
+							order: textWordRow.order!,
+							word,
+						})
+					}
+				}
+			})
+
+			return text
+		})
+
+		// Add texts to reader
+		texts.forEach((text) => {
+			reader.texts.push(text)
+		})
+
+		// Add words to reader
+		Object.entries(dbWords).forEach(([wordId, wordRow]) => {
+			const word = new Word({ id: wordId, name: wordRow.name! })
+			word.status = wordRow.status as 'known' | 'unknown' | 'difficult'
+			reader.words.push(word)
+		})
 
 		return reader
 	}
 
-	save() {
+	save(reader: Reader) {
 		// Persist reader
-		// Persist all texts (new and existing)
-		// Persist all words (new and existing)
+		reader.texts.forEach((t: Text) => {
+			this.db.setRow('texts', t.id, { reader: reader.id, title: t.title, content: t.content })
+			t.words.forEach((w) => {
+				this.db.setRow('text_words', w.id, {
+					text: t.id,
+					word: w.word ? w.word.id : undefined,
+					name: w.name,
+					order: w.order,
+				})
+			})
+		})
+		reader.words.forEach((w: Word) => {
+			this.db.setRow('words', w.id, { reader: reader.id, name: w.name, status: w.status })
+		})
 		// Handle relationships
 	}
 }
