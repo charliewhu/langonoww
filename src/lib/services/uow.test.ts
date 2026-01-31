@@ -2,54 +2,38 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { store } from '$lib/adapters/db'
 import TinybaseUOW from './uow'
 
-describe('uow', () => {
-	const readerId = '1'
-	const title = 'title'
-	let content = 'New text content'
-
+describe('tinybase uow', () => {
 	let uow: TinybaseUOW
+	let title = 'title'
+	let content = 'uow content'
 
-	beforeEach(() => {
-		uow = new TinybaseUOW()
+	beforeEach(async () => {
+		uow = await TinybaseUOW.create()
 		store.delTables() // ensure empty store
 	})
 
-	it.skip('can load from database', async () => {
-		// arrange
-		store.addRow('readers', { id: readerId })
-		store.addRow('texts', { reader: readerId, title, content })
-		store.addRow('words', { reader: readerId, name: 'dbWord' })
+	it('rolls back uncommitted by default', async () => {
+		// 'create' db objects
+		await uow.execute(async (uow) => {
+			uow.db.addRow('words', { reader: '1', name: 'name' })
+		})
 
-		// act
-		const reader = uow.readers.get(readerId)
-
-		// assert
-		expect(reader.id).toEqual(readerId)
-		expect(reader.texts).toHaveLength(1)
-		expect(reader.words).toHaveLength(3)
+		// database should be empty
+		expect(Object.keys(store.getTable('words'))).toHaveLength(0)
 	})
 
-	it.skip('can modifiy repo data', async () => {
-		// arrange
-		store.setRow('readers', readerId, { id: readerId })
-		content = 'text'
-		store.setRow('texts', 'textId', { reader: readerId, title, content })
-		store.setRow('words', 'wordId', { reader: readerId, name: 'dbWord' })
+	it.skip('rolls back on error', async () => {
+		//
+	})
 
-		const word = store.getTable('words')
-		console.log(store.getTables())
-		console.log({ word })
+	it('commits data', async () => {
+		// 'create' db objects
+		await uow.execute(async (uow) => {
+			uow.db.addRow('words', { reader: '1', name: 'name' })
+			uow.commit()
+		})
 
-		// load from repo and modify.
-		const reader = uow.readers.get(readerId)
-		const newName = 'newWord'
-		reader.words[0].name = newName
-
-		uow.readers.save(reader)
-
-		// expect words to be the same length as before
-		const wordsTable = store.getTable('words')
-		console.log({ wordsTable })
-		expect(store.getRow('words', Object.keys(word)[0]).name).toEqual(newName)
+		// database should have rows
+		expect(Object.keys(store.getTable('words'))).not.toHaveLength(0)
 	})
 })
