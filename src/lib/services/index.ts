@@ -3,9 +3,9 @@ import type { IRepository } from '$lib/services/uow'
 
 export interface IUnitOfWork {
 	readers: IRepository<domain.Reader>
-	begin(): Promise<void>
-	commit(): Promise<void>
+	execute<T>(work: (uow: this) => Promise<T>): Promise<T>
 	rollback(): Promise<void>
+	commit(): Promise<void>
 }
 
 export function getReader(uow: IUnitOfWork, id: string) {
@@ -13,18 +13,27 @@ export function getReader(uow: IUnitOfWork, id: string) {
 	return reader
 }
 
-export function createText(
+export async function createText(
 	uow: IUnitOfWork,
 	id: string,
 	...payload: ConstructorParameters<typeof domain.Text>
 ) {
-	const reader = uow.readers.get(id)
+	if (payload[0].title === '' || payload[0].content === '') {
+		return
+	}
 
-	if (!reader) return
+	const text = await uow.execute(async (uow) => {
+		const reader = uow.readers.get(id)
+		if (!reader) {
+			throw new Error(`No item with id: ${id}`)
+		}
 
-	const text = reader.addText(payload[0])
+		const text = reader.addText(payload[0])
 
-	uow.readers.save(reader)
+		uow.readers.save(reader)
+		await uow.commit()
+		return text
+	})
 
 	return text
 }
