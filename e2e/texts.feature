@@ -17,13 +17,13 @@ Feature: Persist uploaded text offline
 			| 'hola'  | 'hola amigo como estas' |
 			| 'adios' | 'adios mi amor'         |
 
-	# Scenario Outline: Read <title> text
-	# 	Given I add content <title> <content>
-	# 	When I navigate to '/texts'
-	# 	And I click <title>
-	# 	Then <content> is visible
+	Scenario Outline: Read <title> text
+		Given I add content <title> <content>
+		When I navigate to '/texts'
+		And I click <title>
+		Then <content> is visible
 
-	# 	Examples:
-	# 		| title   | content                 |
-	# 		| 'hola'  | 'hola amigo como estas' |
-	# 		| 'adios' | 'adios mi amor'         |
+		Examples:
+			| title   | content                 |
+			| 'hola'  | 'hola amigo como estas' |
+			| 'adios' | 'adios mi amor'         |
