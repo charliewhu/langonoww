@@ -65,4 +65,134 @@ describe('Text', () => {
 		const expected = ['This', ':', ' ', 'example']
 		expect(parsed).toEqual(expected)
 	})
+
+	describe('parseRawContent', () => {
+		it('handles empty strings', () => {
+			const text = new domain.Text({ title: 'empty', content: '' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual([])
+		})
+
+		it('handles newline-only content', () => {
+			const text = new domain.Text({ title: 'newlines', content: '\n\n\n' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['\n', '\n', '\n'])
+		})
+
+		it('handles accented characters', () => {
+			const text = new domain.Text({ title: 'accented', content: 'café naïve résumé' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['café', ' ', 'naïve', ' ', 'résumé'])
+		})
+
+		it('handles emoji characters', () => {
+			const text = new domain.Text({ title: 'emojis', content: '🌟 Star power 🚀' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['🌟', ' ', 'Star', ' ', 'power', ' ', '🚀'])
+		})
+
+		it('handles mixed punctuation patterns', () => {
+			const text = new domain.Text({ title: 'punctuation', content: 'Hello, world! How are you?' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual([
+				'Hello',
+				',',
+				' ',
+				'world',
+				'!',
+				' ',
+				'How',
+				' ',
+				'are',
+				' ',
+				'you',
+				'?',
+			])
+		})
+
+		it('handles complex punctuation', () => {
+			const text = new domain.Text({
+				title: 'complex punctuation',
+				content: '"Hello," she said; "how are you?"',
+			})
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual([
+				'"',
+				'Hello',
+				',',
+				'"',
+				' ',
+				'she',
+				' ',
+				'said',
+				';',
+				' ',
+				'"',
+				'how',
+				' ',
+				'are',
+				' ',
+				'you',
+				'?',
+				'"',
+			])
+		})
+
+		it('handles special characters', () => {
+			const text = new domain.Text({ title: 'special', content: '@user #tag $100 %50' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['@user', ' ', '#tag', ' ', '$100', ' ', '%50'])
+		})
+
+		it('handles contractions with apostrophes', () => {
+			const text = new domain.Text({ title: 'contractions', content: "don't can't won't" })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(["don't", ' ', "can't", ' ', "won't"])
+		})
+
+		it('handles numbers mixed with text', () => {
+			const text = new domain.Text({ title: 'numbers', content: '123numbers456 abc123' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['123numbers456', ' ', 'abc123'])
+		})
+
+		it('handles hyphenated words', () => {
+			const text = new domain.Text({
+				title: 'hyphenated',
+				content: 'word-together state-of-the-art',
+			})
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['word-together', ' ', 'state-of-the-art'])
+		})
+
+		it('handles numbers mixed with text', () => {
+			const text = new domain.Text({ title: 'numbers', content: '123numbers456 abc123' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['123numbers456', ' ', 'abc123'])
+		})
+
+		it('handles colons and spaces', () => {
+			const text = new domain.Text({ title: 'colon spaces', content: 'Word: Another: thing' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['Word', ':', ' ', 'Another', ':', ' ', 'thing'])
+		})
+
+		it('handles multiple consecutive spaces', () => {
+			const text = new domain.Text({ title: 'multiple spaces', content: 'Hello  world' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['Hello', ' ', ' ', 'world'])
+		})
+
+		it('handles mixed unicode and punctuation', () => {
+			const text = new domain.Text({ title: 'mixed unicode', content: 'café, naïve!' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['café', ',', ' ', 'naïve', '!'])
+		})
+
+		it('handles currency symbols', () => {
+			const text = new domain.Text({ title: 'currency', content: '$100 €200 ¥300' })
+			const parsed = text.parseRawContent()
+			expect(parsed).toEqual(['$100', ' ', '€200', ' ', '¥300'])
+		})
+	})
 })

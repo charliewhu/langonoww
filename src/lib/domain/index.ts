@@ -42,7 +42,7 @@ export class Reader {
 		let word = this.words.find((w) => w.name == normalised)
 
 		if (!word) {
-			word = new Word(normalised)
+			word = new Word({ name: normalised })
 			this.words.push(word)
 		}
 		return word
@@ -50,11 +50,13 @@ export class Reader {
 }
 
 export class Text {
+	readonly id: string
 	readonly title: string
 	readonly content: string
 	readonly words: TextWord[]
 
-	constructor({ title, content }: { title: string; content: string }) {
+	constructor({ id, title, content }: { id?: string; title: string; content: string }) {
+		this.id = id ?? crypto.randomUUID()
 		this.title = title
 		this.content = content
 		this.words = []
@@ -66,18 +68,29 @@ export class Text {
 	}
 	parseRawContent() {
 		// create list of words, punctuation, spaces
-		return this.content.split(/(?=[\s:])|(?<=[\s:])/).filter(Boolean)
+		return this.content.split(/(?=[\s:;,!?"])|(?<=[\s:;,!?"])/).filter(Boolean)
 	}
 }
 
 class TextWord {
 	// container to map ordered Words to Text content
-
-	readonly name // raw 'word' element from Text eg 'This' or ','
+	readonly id: string
+	readonly name: string // raw 'word' element from Text eg 'This' or ','
 	readonly order: number // ordered position in text content
 	readonly word: Word | undefined
 
-	constructor({ name, order, word }: { name: string; order: number; word?: Word }) {
+	constructor({
+		id,
+		name,
+		order,
+		word,
+	}: {
+		id?: string
+		name: string
+		order: number
+		word?: Word
+	}) {
+		this.id = id ?? crypto.randomUUID()
 		this.name = name
 		this.order = order
 		this.word = word
@@ -96,11 +109,13 @@ class TextWord {
 	}
 }
 
-class Word {
+export class Word {
+	readonly id: string
 	readonly name: string
 	status: 'known' | 'unknown' | 'difficult'
 
-	constructor(name: string) {
+	constructor({ id, name }: { id?: string; name: string }) {
+		this.id = id ?? crypto.randomUUID()
 		this.name = name.toLowerCase()
 		this.status = 'unknown'
 	}
