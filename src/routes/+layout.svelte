@@ -29,18 +29,6 @@
 		<div class="navbar-end">Langonoww</div>
 	</div>
 	<main class="mx-auto max-w-lg p-4">
-		<svelte:boundary
-			onerror={(error, reset) => {
-				console.error('Application error:', error)
-			}}
-		>
-			{@render children()}
-			{#snippet failed(error, reset)}
-				<div class="alert alert-error">
-					<span>Something went wrong. Please try refreshing the page.</span>
-					<button class="btn btn-sm" onclick={reset}>Retry</button>
-				</div>
-			{/snippet}
-		</svelte:boundary>
+		{@render children()}
 	</main>
 </div>

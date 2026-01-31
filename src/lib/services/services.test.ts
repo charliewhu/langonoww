@@ -17,6 +17,28 @@ describe('services', () => {
 		uow.readers.save(reader)
 	})
 
+	it('loads text', async () => {
+		const newText = await services.createText(uow, readerId, { title, content })
+
+		const text = await services.getText(uow, newText!.id)
+
+		expect(text!.words[0].name).toEqual(content.split(' ')[0])
+		expect(text!.words).toHaveLength(5)
+	})
+	it('gets reader with texts', async () => {
+		services.createText(uow, readerId, { title, content })
+
+		const title2 = 'another title'
+		services.createText(uow, readerId, { title: title2, content: 'other stuff' })
+
+		const retrievedReader = services.getReader(uow, readerId)
+
+		if (!retrievedReader) throw new Error()
+		expect(retrievedReader.texts.length).toEqual(2)
+		expect(retrievedReader.texts[0].title).toEqual(title)
+		expect(retrievedReader.texts[1].title).toEqual(title2)
+	})
+
 	it('creates text and saves to repository', async () => {
 		const text = await services.createText(uow, readerId, { title, content })
 
@@ -43,20 +65,6 @@ describe('services', () => {
 
 		expect(emptyTitle).toBeUndefined()
 		expect(emptyContent).toBeUndefined()
-	})
-
-	it('gets reader with texts', async () => {
-		services.createText(uow, readerId, { title, content })
-
-		const title2 = 'another title'
-		services.createText(uow, readerId, { title: title2, content: 'other stuff' })
-
-		const retrievedReader = services.getReader(uow, readerId)
-
-		if (!retrievedReader) throw new Error()
-		expect(retrievedReader.texts.length).toEqual(2)
-		expect(retrievedReader.texts[0].title).toEqual(title)
-		expect(retrievedReader.texts[1].title).toEqual(title2)
 	})
 
 	it('parses words from text content', async () => {

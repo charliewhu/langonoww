@@ -13,6 +13,14 @@ export function getReader(uow: IUnitOfWork, id: string) {
 	return reader
 }
 
+export async function getText(uow: IUnitOfWork, id: string) {
+	const reader = uow.readers.get('1') // TODO: more than one reader
+
+	if (!reader) return
+
+	return reader.texts.find((t) => t.id == id)
+}
+
 export async function createText(
 	uow: IUnitOfWork,
 	id: string,
