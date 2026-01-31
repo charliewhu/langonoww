@@ -7,8 +7,8 @@
 
 	async function addText(event: Event) {
 		event.preventDefault()
-		const uow = new TinybaseUOW()
-		services.createText(uow, { title, content })
+		const uow = await TinybaseUOW.create()
+		services.createText(uow, '1', { title, content })
 	}
 </script>
 
