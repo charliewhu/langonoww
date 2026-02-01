@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state'
 	import * as services from '$lib/services'
-	import TinybaseUOW from '$lib/services/uow'
+	import { createTinybaseUow } from '$lib/services/uow.svelte'
 
 	let id = $derived(page.params.id!)
-	let uow = $derived(await TinybaseUOW.create())
+	let uow = $derived(await createTinybaseUow())
 	let text = $derived(await services.getText(uow, id))
 	let isCompleting = $state(false)
 </script>

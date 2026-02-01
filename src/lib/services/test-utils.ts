@@ -1,5 +1,5 @@
 import * as domain from '$lib/domain'
-import type { IRepository } from '$lib/services/uow'
+import type { IRepository } from '$lib/services/uow.svelte'
 
 export class MockRepository<T> implements IRepository<T> {
 	private items = new Map<string, T>()

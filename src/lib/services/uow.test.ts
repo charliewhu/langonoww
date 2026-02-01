@@ -1,21 +1,21 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { store } from '$lib/adapters/db'
-import TinybaseUOW from './uow'
+import { createTinybaseUow } from './uow.svelte'
 
 describe('tinybase uow', () => {
-	let uow: TinybaseUOW
+	let uow: Awaited<ReturnType<typeof createTinybaseUow>>
 	let title = 'title'
 	let content = 'uow content'
 
 	beforeEach(async () => {
-		uow = await TinybaseUOW.create()
+		uow = await createTinybaseUow()
 		store.delTables() // ensure empty store
 	})
 
 	it('rolls back uncommitted by default', async () => {
 		// 'create' db objects
-		await uow.execute(async (uow) => {
-			uow.db.addRow('words', { reader: '1', name: 'name' })
+		await uow.execute(async ({ db }) => {
+			db.addRow('words', { reader: '1', name: 'name' })
 		})
 
 		// database should be empty

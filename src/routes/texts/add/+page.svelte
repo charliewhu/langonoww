@@ -1,5 +1,5 @@
 <script lang="ts">
-	import TinybaseUOW from '$lib/services/uow'
+	import { createTinybaseUow } from '$lib/services/uow.svelte'
 	import * as services from '$lib/services'
 
 	let title = $state('')
@@ -7,7 +7,7 @@
 
 	async function addText(event: Event) {
 		event.preventDefault()
-		const uow = await TinybaseUOW.create()
+		const uow = await createTinybaseUow()
 		services.createText(uow, '1', { title, content })
 	}
 </script>

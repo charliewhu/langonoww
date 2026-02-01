@@ -2,18 +2,18 @@
 	import './layout.css'
 	import favicon from '$lib/assets/favicon.svg'
 	import * as services from '$lib/services'
-	import TinybaseUOW from '$lib/services/uow'
+	import { createTinybaseUow } from '$lib/services/uow.svelte'
 
 	let { children } = $props()
 
-	let uow = $state(await TinybaseUOW.create())
-	let knownWordsCount = $derived(await services.getKnownWordsCount(uow))
+	let uow = $state(await createTinybaseUow())
+	let knownWordsCount = $derived(services.getKnownWordsCount(uow))
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <div class="min-h-screen bg-base-100">
-	<div class="navbar bg-base-200 shadow-sm">
+	<nav class="navbar bg-base-200 z-100">
 		<div class="flex-1">
 			<a href="/" class="btn text-xl btn-ghost">Langonow</a>
 		</div>
@@ -32,9 +32,9 @@
 			</ul>
 		</div>
 		<div class="navbar-end">
-			<p data-testid="known-words">Known Words: {knownWordsCount}</p>
+			<p data-testid="known-words">Known Words: {await knownWordsCount}</p>
 		</div>
-	</div>
+	</nav>
 	<main class="mx-auto max-w-lg p-4">
 		{@render children()}
 	</main>

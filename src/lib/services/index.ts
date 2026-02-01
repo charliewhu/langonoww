@@ -1,5 +1,5 @@
 import * as domain from '$lib/domain'
-import type { IRepository } from '$lib/services/uow'
+import type { IRepository } from '$lib/services/uow.svelte'
 
 export interface IUnitOfWork {
 	readers: IRepository<domain.Reader>
