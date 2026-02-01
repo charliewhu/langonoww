@@ -66,7 +66,6 @@ export class Text {
 	}
 
 	parseRawContent() {
-		// create list of words, punctuation, spaces
 		return this.content.split(/(?=[\s:;,!?"])|(?<=[\s:;,!?"])/).filter(Boolean)
 	}
 }
@@ -120,6 +119,6 @@ export class Word {
 	}
 
 	static isWord(raw: string) {
-		return /^\p{L}+$/u.test(raw)
+		return /^[\p{L}@#$%0-9'-]+$/u.test(raw)
 	}
 }

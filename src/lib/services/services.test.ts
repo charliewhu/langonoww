@@ -6,7 +6,7 @@ import { MockUnitOfWork } from './test-utils'
 describe('services', () => {
 	const readerId = '1'
 	const title = 'title'
-	const content = 'New text content'
+	let content = 'New text content'
 
 	let uow: MockUnitOfWork
 	let reader: domain.Reader
@@ -58,6 +58,21 @@ describe('services', () => {
 	})
 
 	it('creates text and saves to repository', async () => {
+		const text = await services.createText(uow, readerId, { title, content })
+
+		expect(text).toBeDefined()
+		expect(text!.title).toEqual(title)
+		expect(text!.content).toEqual(content)
+
+		const savedReader = uow.readers.get(readerId)
+		expect(savedReader).toBeDefined()
+		if (!savedReader) throw new Error()
+		expect(savedReader.texts).toHaveLength(1)
+		expect(savedReader.texts[0]).toEqual(text)
+	})
+
+	it('creates text with accent', async () => {
+		content = "j'avais une bierre"
 		const text = await services.createText(uow, readerId, { title, content })
 
 		expect(text).toBeDefined()

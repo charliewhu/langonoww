@@ -56,149 +56,134 @@ describe('Reader', () => {
 	})
 })
 
-describe('Text', () => {
-	it('can parse content', async () => {
-		const text = new domain.Text({ title, content })
+describe('Reader - addText parsing', () => {
+	let reader: domain.Reader
 
-		const parsed = text.parseRawContent()
-
-		const expected = ['This', ':', ' ', 'example']
-		expect(parsed).toEqual(expected)
+	beforeEach(() => {
+		reader = new domain.Reader()
 	})
 
-	describe('parseRawContent', () => {
-		it('handles empty strings', async () => {
-			const text = new domain.Text({ title: 'empty', content: '' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual([])
-		})
+	it('handles empty strings', async () => {
+		reader.addText({ title: 'empty', content: '' })
+		expect(reader.texts[0].words).toEqual([])
+	})
 
-		it('handles contractions', async () => {
-			const text = new domain.Text({ title: 'contract', content: "j'avais une bierre" })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(["j'avais", ' ', 'une', ' ', 'bierre'])
-		})
+	it('handles contractions', async () => {
+		reader.addText({ title: 'contract', content: "j'avais une bierre" })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(["j'avais", ' ', 'une', ' ', 'bierre'])
+	})
 
-		it('handles newline-only content', async () => {
-			const text = new domain.Text({ title: 'newlines', content: '\n\n\n' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['\n', '\n', '\n'])
-		})
+	it('handles newline-only content', async () => {
+		reader.addText({ title: 'newlines', content: '\n\n\n' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(['\n', '\n', '\n'])
+	})
 
-		it('handles accented characters', async () => {
-			const text = new domain.Text({ title: 'accented', content: 'café naïve résumé' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['café', ' ', 'naïve', ' ', 'résumé'])
-		})
+	it('handles accented characters', async () => {
+		reader.addText({ title: 'accented', content: 'café naïve résumé' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(['café', ' ', 'naïve', ' ', 'résumé'])
+	})
 
-		it('handles emoji characters', async () => {
-			const text = new domain.Text({ title: 'emojis', content: '🌟 Star power 🚀' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['🌟', ' ', 'Star', ' ', 'power', ' ', '🚀'])
-		})
+	it('handles emoji characters', async () => {
+		reader.addText({ title: 'emojis', content: '🌟 Star power 🚀' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(['🌟', ' ', 'Star', ' ', 'power', ' ', '🚀'])
+	})
 
-		it('handles mixed punctuation patterns', async () => {
-			const text = new domain.Text({ title: 'punctuation', content: 'Hello, world! How are you?' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual([
-				'Hello',
-				',',
-				' ',
-				'world',
-				'!',
-				' ',
-				'How',
-				' ',
-				'are',
-				' ',
-				'you',
-				'?',
-			])
-		})
+	it('handles mixed punctuation patterns', async () => {
+		reader.addText({ title: 'punctuation', content: 'Hello, world! How are you?' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual([
+			'Hello',
+			',',
+			' ',
+			'world',
+			'!',
+			' ',
+			'How',
+			' ',
+			'are',
+			' ',
+			'you',
+			'?',
+		])
+	})
 
-		it('handles complex punctuation', async () => {
-			const text = new domain.Text({
-				title: 'complex punctuation',
-				content: '"Hello," she said; "how are you?"',
-			})
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual([
-				'"',
-				'Hello',
-				',',
-				'"',
-				' ',
-				'she',
-				' ',
-				'said',
-				';',
-				' ',
-				'"',
-				'how',
-				' ',
-				'are',
-				' ',
-				'you',
-				'?',
-				'"',
-			])
+	it('handles complex punctuation', async () => {
+		reader.addText({
+			title: 'complex punctuation',
+			content: '"Hello," she said; "how are you?"',
 		})
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual([
+			'"',
+			'Hello',
+			',',
+			'"',
+			' ',
+			'she',
+			' ',
+			'said',
+			';',
+			' ',
+			'"',
+			'how',
+			' ',
+			'are',
+			' ',
+			'you',
+			'?',
+			'"',
+		])
+	})
 
-		it('handles special characters', async () => {
-			const text = new domain.Text({ title: 'special', content: '@user #tag $100 %50' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['@user', ' ', '#tag', ' ', '$100', ' ', '%50'])
-		})
+	it('handles special characters', async () => {
+		reader.addText({ title: 'special', content: '@user #tag $100 %50' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(['@user', ' ', '#tag', ' ', '$100', ' ', '%50'])
+	})
 
-		it('handles contractions with apostrophes', async () => {
-			const text = new domain.Text({ title: 'contractions', content: "don't can't won't" })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(["don't", ' ', "can't", ' ', "won't"])
-		})
+	it('handles contractions with apostrophes', async () => {
+		reader.addText({ title: 'contractions', content: "don't can't won't" })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(["don't", ' ', "can't", ' ', "won't"])
+	})
 
-		it('handles numbers mixed with text', async () => {
-			const text = new domain.Text({ title: 'numbers', content: '123numbers456 abc123' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['123numbers456', ' ', 'abc123'])
-		})
+	it('handles numbers mixed with text', async () => {
+		reader.addText({ title: 'numbers', content: '123numbers456 abc123' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(['123numbers456', ' ', 'abc123'])
+	})
 
-		it('handles hyphenated words', async () => {
-			const text = new domain.Text({
-				title: 'hyphenated',
-				content: 'word-together state-of-the-art',
-			})
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['word-together', ' ', 'state-of-the-art'])
-		})
+	it('handles hyphenated words', async () => {
+		reader.addText({ title: 'hyphenated', content: 'word-together state-of-the-art' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(['word-together', ' ', 'state-of-the-art'])
+	})
 
-		it('handles numbers mixed with text', async () => {
-			const text = new domain.Text({ title: 'numbers', content: '123numbers456 abc123' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['123numbers456', ' ', 'abc123'])
-		})
+	it('handles colons and spaces', async () => {
+		reader.addText({ title: 'colon spaces', content: 'Word: Another: thing' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(['Word', ':', ' ', 'Another', ':', ' ', 'thing'])
+	})
 
-		it('handles colons and spaces', async () => {
-			const text = new domain.Text({ title: 'colon spaces', content: 'Word: Another: thing' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['Word', ':', ' ', 'Another', ':', ' ', 'thing'])
-		})
+	it('handles multiple consecutive spaces', async () => {
+		reader.addText({ title: 'multiple spaces', content: 'Hello  world' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(['Hello', ' ', ' ', 'world'])
+	})
 
-		it('handles multiple consecutive spaces', async () => {
-			const text = new domain.Text({ title: 'multiple spaces', content: 'Hello  world' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['Hello', ' ', ' ', 'world'])
-		})
+	it('handles mixed unicode and punctuation', async () => {
+		reader.addText({ title: 'mixed unicode', content: 'café, naïve!' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(['café', ',', ' ', 'naïve', '!'])
+	})
 
-		it('handles mixed unicode and punctuation', async () => {
-			const text = new domain.Text({ title: 'mixed unicode', content: 'café, naïve!' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['café', ',', ' ', 'naïve', '!'])
-		})
-
-		it('handles currency symbols', async () => {
-			const text = new domain.Text({ title: 'currency', content: '$100 €200 ¥300' })
-			const parsed = text.parseRawContent()
-			expect(parsed).toEqual(['$100', ' ', '€200', ' ', '¥300'])
-		})
+	it('handles currency symbols', async () => {
+		reader.addText({ title: 'currency', content: '$100 €200 ¥300' })
+		const words = reader.texts[0].words.map((w) => w.name)
+		expect(words).toEqual(['$100', ' ', '€200', ' ', '¥300'])
 	})
 })

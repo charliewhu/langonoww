@@ -26,7 +26,7 @@ Feature: Persist uploaded text offline
 		Examples:
 			| title   | content                 |
 			| 'hola'  | 'hola amigo como estas' |
-			| 'adios' | 'adios mi amor'         |
+			| 'adios' | "j'avais une bierre"    |
 
 	Scenario Outline: Reading words saves them to known word list
 		Given I add content <title> <content>
