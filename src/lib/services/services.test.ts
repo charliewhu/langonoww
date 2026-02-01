@@ -137,12 +137,18 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(["j'avais", ' ', 'une', ' ', 'bierre'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(3)
 	})
 
 	it('handles newline-only content', async () => {
 		const text = await services.createText(uow, readerId, { title: 'newlines', content: '\n\n\n' })
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(['\n', '\n', '\n'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(0)
 	})
 
 	it('handles accented characters', async () => {
@@ -152,6 +158,9 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(['café', ' ', 'naïve', ' ', 'résumé'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(3)
 	})
 
 	it('handles emoji characters', async () => {
@@ -161,6 +170,9 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(['🌟', ' ', 'Star', ' ', 'power', ' ', '🚀'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(2)
 	})
 
 	it('handles mixed punctuation patterns', async () => {
@@ -183,6 +195,9 @@ describe('services', () => {
 			'you',
 			'?',
 		])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(5)
 	})
 
 	it('handles complex punctuation', async () => {
@@ -211,6 +226,9 @@ describe('services', () => {
 			'?',
 			'"',
 		])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(6)
 	})
 
 	it('handles special characters', async () => {
@@ -220,6 +238,9 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(['@user', ' ', '#tag', ' ', '$100', ' ', '%50'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(0)
 	})
 
 	it('handles contractions with apostrophes', async () => {
@@ -229,6 +250,9 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(["don't", ' ', "can't", ' ', "won't"])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(3)
 	})
 
 	it('handles numbers mixed with text', async () => {
@@ -238,6 +262,9 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(['123numbers456', ' ', 'abc123'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(0)
 	})
 
 	it('handles hyphenated words', async () => {
@@ -247,6 +274,9 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(['word-together', ' ', 'state-of-the-art'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(2)
 	})
 
 	it('handles colons and spaces', async () => {
@@ -256,6 +286,9 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(['Word', ':', ' ', 'Another', ':', ' ', 'thing'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(3)
 	})
 
 	it('handles multiple consecutive spaces', async () => {
@@ -265,6 +298,9 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(['Hello', ' ', ' ', 'world'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(2)
 	})
 
 	it('handles mixed unicode and punctuation', async () => {
@@ -274,6 +310,9 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(['café', ',', ' ', 'naïve', '!'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(2)
 	})
 
 	it('handles currency symbols', async () => {
@@ -283,6 +322,9 @@ describe('services', () => {
 		})
 		const words = text.words.map((w) => w.name)
 		expect(words).toEqual(['$100', ' ', '€200', ' ', '¥300'])
+
+		const reader = await services.getReader(uow, '1')
+		expect(reader.words).toHaveLength(0)
 	})
 
 	it('can mark word as difficult', async () => {

@@ -119,6 +119,6 @@ export class Word {
 	}
 
 	static isWord(raw: string) {
-		return /^[\p{L}@#$%0-9'-]+$/u.test(raw)
+		return /^[\p{L}'-]+$/u.test(raw)
 	}
 }
