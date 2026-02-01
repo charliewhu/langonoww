@@ -130,6 +130,169 @@ describe('services', () => {
 		expect(savedReader.words[1].status).toEqual('unknown')
 	})
 
+	it('handles contractions', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'contract',
+			content: "j'avais une bierre",
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(["j'avais", ' ', 'une', ' ', 'bierre'])
+	})
+
+	it('handles newline-only content', async () => {
+		const text = await services.createText(uow, readerId, { title: 'newlines', content: '\n\n\n' })
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(['\n', '\n', '\n'])
+	})
+
+	it('handles accented characters', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'accented',
+			content: 'café naïve résumé',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(['café', ' ', 'naïve', ' ', 'résumé'])
+	})
+
+	it('handles emoji characters', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'emojis',
+			content: '🌟 Star power 🚀',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(['🌟', ' ', 'Star', ' ', 'power', ' ', '🚀'])
+	})
+
+	it('handles mixed punctuation patterns', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'punctuation',
+			content: 'Hello, world! How are you?',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual([
+			'Hello',
+			',',
+			' ',
+			'world',
+			'!',
+			' ',
+			'How',
+			' ',
+			'are',
+			' ',
+			'you',
+			'?',
+		])
+	})
+
+	it('handles complex punctuation', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'complex punctuation',
+			content: '"Hello," she said; "how are you?"',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual([
+			'"',
+			'Hello',
+			',',
+			'"',
+			' ',
+			'she',
+			' ',
+			'said',
+			';',
+			' ',
+			'"',
+			'how',
+			' ',
+			'are',
+			' ',
+			'you',
+			'?',
+			'"',
+		])
+	})
+
+	it('handles special characters', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'special',
+			content: '@user #tag $100 %50',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(['@user', ' ', '#tag', ' ', '$100', ' ', '%50'])
+	})
+
+	it('handles contractions with apostrophes', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'contractions',
+			content: "don't can't won't",
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(["don't", ' ', "can't", ' ', "won't"])
+	})
+
+	it('handles numbers mixed with text', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'numbers',
+			content: '123numbers456 abc123',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(['123numbers456', ' ', 'abc123'])
+	})
+
+	it('handles hyphenated words', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'hyphenated',
+			content: 'word-together state-of-the-art',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(['word-together', ' ', 'state-of-the-art'])
+	})
+
+	it('handles colons and spaces', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'colon spaces',
+			content: 'Word: Another: thing',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(['Word', ':', ' ', 'Another', ':', ' ', 'thing'])
+	})
+
+	it('handles multiple consecutive spaces', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'multiple spaces',
+			content: 'Hello  world',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(['Hello', ' ', ' ', 'world'])
+	})
+
+	it('handles mixed unicode and punctuation', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'mixed unicode',
+			content: 'café, naïve!',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(['café', ',', ' ', 'naïve', '!'])
+	})
+
+	it('handles currency symbols', async () => {
+		const text = await services.createText(uow, readerId, {
+			title: 'currency',
+			content: '$100 €200 ¥300',
+		})
+		const words = text.words.map((w) => w.name)
+		expect(words).toEqual(['$100', ' ', '€200', ' ', '¥300'])
+	})
+
+	it('can mark word as difficult', async () => {
+		const text = await services.createText(uow, readerId, { title, content: 'hello world' })
+
+		text.words[0].word!.status = 'difficult'
+
+		expect(text.words[0].word!.status).toEqual('difficult')
+	})
+
 	it('does not duplicate words across texts', async () => {
 		await services.createText(uow, readerId, { title: 'text1', content: 'hello world' })
 		await services.createText(uow, readerId, { title: 'text2', content: 'hello there' })
