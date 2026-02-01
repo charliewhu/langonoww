@@ -65,9 +65,26 @@ When('I click {string}', async ({ page }, arg: string) => {
 	}
 })
 
+When('I complete the text', async ({ page }) => {
+	// Step: When I complete the text
+	await page.getByRole('button', { name: 'Complete' }).click()
+})
+
 Then('{string} is visible', async ({ page }, arg: string) => {
 	// Step: Then 'hola amigo como estas' is visible
 	// From: e2e/sample.feature:34:3
 	const text = page.getByText(arg)
 	await expect(text).toBeVisible()
+})
+
+Then('my known words is {int}', async ({ page }, arg: number) => {
+	// Step: Then my known words is 0
+	const knownWords = page.getByTestId('known-words')
+	await expect(knownWords).toContainText(String(arg))
+})
+
+Then('my difficult words is {int}', async ({ page }, arg: number) => {
+	// Step: Then my difficult words is 0
+	const words = page.getByTestId('difficult-words')
+	await expect(words).toContainText(String(arg))
 })

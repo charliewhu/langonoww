@@ -51,6 +51,7 @@ export class TinybaseRepository<S extends [typeof tablesSchema, NoValuesSchema]>
 							order: textWordRow.order!,
 							word,
 						})
+						reader.words.push(word)
 					}
 				}
 			})
@@ -61,13 +62,6 @@ export class TinybaseRepository<S extends [typeof tablesSchema, NoValuesSchema]>
 		// Add texts to reader
 		texts.forEach((text) => {
 			reader.texts.push(text)
-		})
-
-		// Add words to reader
-		Object.entries(dbWords).forEach(([wordId, wordRow]) => {
-			const word = new Word({ id: wordId, name: wordRow.name! })
-			word.status = wordRow.status as 'known' | 'unknown' | 'difficult'
-			reader.words.push(word)
 		})
 
 		return reader

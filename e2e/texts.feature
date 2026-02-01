@@ -27,3 +27,16 @@ Feature: Persist uploaded text offline
 			| title   | content                 |
 			| 'hola'  | 'hola amigo como estas' |
 			| 'adios' | 'adios mi amor'         |
+
+	Scenario Outline: Reading words saves them to known word list
+		Given I add content <title> <content>
+		When I navigate to '/texts'
+		And I click <title>
+		Then my known words is 0
+
+		When I complete the text
+		Then my known words is 4
+
+		Examples:
+			| title  | content                 |
+			| 'hola' | 'hola amigo como estas' |

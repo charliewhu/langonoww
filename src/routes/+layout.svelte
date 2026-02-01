@@ -1,8 +1,13 @@
 <script lang="ts">
 	import './layout.css'
 	import favicon from '$lib/assets/favicon.svg'
+	import * as services from '$lib/services'
+	import TinybaseUOW from '$lib/services/uow'
 
 	let { children } = $props()
+
+	let uow = $state(await TinybaseUOW.create())
+	let knownWordsCount = $derived(await services.getKnownWordsCount(uow))
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -26,7 +31,9 @@
 				</li>
 			</ul>
 		</div>
-		<div class="navbar-end">Langonoww</div>
+		<div class="navbar-end">
+			<p data-testid="known-words">Known Words: {knownWordsCount}</p>
+		</div>
 	</div>
 	<main class="mx-auto max-w-lg p-4">
 		{@render children()}

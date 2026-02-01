@@ -64,6 +64,7 @@ export class Text {
 		const textWord = new TextWord(word[0])
 		this.words.push(textWord)
 	}
+
 	parseRawContent() {
 		// create list of words, punctuation, spaces
 		return this.content.split(/(?=[\s:;,!?"])|(?<=[\s:;,!?"])/).filter(Boolean)
@@ -75,7 +76,7 @@ class TextWord {
 	readonly id: string
 	readonly name: string // raw 'word' element from Text eg 'This' or ','
 	readonly order: number // ordered position in text content
-	readonly word: Word | undefined
+	word: Word | undefined
 
 	constructor({
 		id,

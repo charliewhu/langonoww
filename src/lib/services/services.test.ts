@@ -17,6 +17,23 @@ describe('services', () => {
 		uow.readers.save(reader)
 	})
 
+	it('can mark text as complete', async () => {
+		const newText = await services.createText(uow, readerId, { title, content })
+
+		await services.completeText(uow, newText!.id)
+
+		expect(newText.words.filter((w) => w.word).every((w) => w.word?.status == 'known')).toBeTruthy()
+	})
+
+	it('gets known words count', async () => {
+		const newText = await services.createText(uow, readerId, { title, content })
+		newText!.words[0].word!.status = 'known'
+
+		const c = await services.getKnownWordsCount(uow)
+
+		expect(c).toEqual(1)
+	})
+
 	it('loads text', async () => {
 		const newText = await services.createText(uow, readerId, { title, content })
 
@@ -25,6 +42,7 @@ describe('services', () => {
 		expect(text!.words[0].name).toEqual(content.split(' ')[0])
 		expect(text!.words).toHaveLength(5)
 	})
+
 	it('gets reader with texts', async () => {
 		services.createText(uow, readerId, { title, content })
 
@@ -60,11 +78,13 @@ describe('services', () => {
 	})
 
 	it('does not create text with empty title or content', async () => {
-		const emptyTitle = await services.createText(uow, readerId, { title: '', content })
-		const emptyContent = await services.createText(uow, readerId, { title, content: '' })
+		await expect(async () => {
+			await services.createText(uow, readerId, { title: '', content })
+		}).rejects.toThrow()
 
-		expect(emptyTitle).toBeUndefined()
-		expect(emptyContent).toBeUndefined()
+		await expect(async () => {
+			await services.createText(uow, readerId, { title, content: '' })
+		}).rejects.toThrow()
 	})
 
 	it('parses words from text content', async () => {
