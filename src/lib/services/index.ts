@@ -19,7 +19,7 @@ export async function getText(uow: IUnitOfWork, id: string) {
 	const reader = uow.readers.get('1') // TODO: more than one reader
 	// if (!reader) throw new Error('Reader not found')
 
-	const text = reader.texts.find((t) => t.id == id)
+	const text = reader!.texts.find((t) => t.id == id)
 	// if (!text) throw new Error('Text not found')
 
 	return text
@@ -30,6 +30,28 @@ export async function getKnownWordsCount(uow: IUnitOfWork) {
 	if (!reader) return 0
 
 	return reader.words.filter((w) => w.status === 'known').length
+}
+
+export async function getDifficultWordsCount(uow: IUnitOfWork) {
+	const reader = uow.readers.get('1')
+	if (!reader) return 0
+
+	return reader.words.filter((w) => w.status === 'difficult').length
+}
+
+export async function markWordDifficult(uow: IUnitOfWork, id: string) {
+	await uow.execute(async (uow) => {
+		const reader = uow.readers.get('1')
+		if (!reader) return
+
+		const word = reader.words.find((w) => w.id === id)
+		if (!word) return
+
+		word.status = 'difficult'
+
+		uow.readers.save(reader)
+		await uow.commit()
+	})
 }
 
 export async function createText(

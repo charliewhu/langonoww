@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { goto } from '$app/navigation'
+	import { resolve } from '$app/paths'
+
 	import { createTinybaseUow } from '$lib/services/uow.svelte'
 	import * as services from '$lib/services'
 
@@ -9,6 +12,7 @@
 		event.preventDefault()
 		const uow = await createTinybaseUow()
 		services.createText(uow, '1', { title, content })
+		goto(resolve('/texts'))
 	}
 </script>
 

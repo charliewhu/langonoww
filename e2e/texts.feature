@@ -40,3 +40,13 @@ Feature: Persist uploaded text offline
 		Examples:
 			| title  | content                 |
 			| 'hola' | 'hola amigo como estas' |
+
+	Scenario: Clicking word saves it to difficult words
+		Given I add content 'title' 'new content'
+		When I navigate to '/texts'
+		And I click 'title'
+		Then my difficult words is 0
+		When I click 'new'
+		Then my difficult words is 1
+		When I click 'content'
+		Then my difficult words is 2

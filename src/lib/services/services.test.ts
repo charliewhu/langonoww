@@ -17,12 +17,24 @@ describe('services', () => {
 		uow.readers.save(reader)
 	})
 
-	it('can mark text as complete', async () => {
-		const newText = await services.createText(uow, readerId, { title, content })
+	describe('marking text complete', () => {
+		it('can mark text as complete', async () => {
+			const newText = await services.createText(uow, readerId, { title, content })
 
-		await services.completeText(uow, newText!.id)
+			await services.completeText(uow, newText!.id)
 
-		expect(newText.words.filter((w) => w.word).every((w) => w.word?.status == 'known')).toBeTruthy()
+			expect(
+				newText.words.filter((w) => w.word).every((w) => w.word?.status == 'known'),
+			).toBeTruthy()
+		})
+
+		it('doesnt override difficult words', async () => {
+			// create words
+			// add difficult word
+			// mark complete
+			// difficult word remains
+			expect(1).toEqual(0)
+		})
 	})
 
 	it('gets known words count', async () => {
@@ -30,6 +42,27 @@ describe('services', () => {
 		newText!.words[0].word!.status = 'known'
 
 		const c = await services.getKnownWordsCount(uow)
+
+		expect(c).toEqual(1)
+	})
+
+	it('gets difficult words count', async () => {
+		const newText = await services.createText(uow, readerId, { title, content })
+		newText!.words[0].word!.status = 'difficult'
+		newText!.words[2].word!.status = 'difficult'
+
+		const c = await services.getDifficultWordsCount(uow)
+
+		expect(c).toEqual(2)
+	})
+
+	it('can mark words as difficult', async () => {
+		const newText = await services.createText(uow, readerId, { title, content })
+		await services.markWordDifficult(uow, newText.words[0].word!.id)
+
+		const diffWords = uow.readers.get('1')
+		expect(diffWords?.words[0].status).toEqual('difficult')
+		const c = await services.getDifficultWordsCount(uow)
 
 		expect(c).toEqual(1)
 	})

@@ -8,6 +8,7 @@
 
 	let uow = $state(await createTinybaseUow())
 	let knownWordsCount = $derived(services.getKnownWordsCount(uow))
+	let difficultWordsCount = $derived(services.getDifficultWordsCount(uow))
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -32,7 +33,10 @@
 			</ul>
 		</div>
 		<div class="navbar-end">
-			<p data-testid="known-words">Known Words: {await knownWordsCount}</p>
+			<ul>
+				<li data-testid="known-words">Known Words: {await knownWordsCount}</li>
+				<li data-testid="difficult-words">Difficult Words: {await difficultWordsCount}</li>
+			</ul>
 		</div>
 	</nav>
 	<main class="mx-auto max-w-lg p-4">
