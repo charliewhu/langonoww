@@ -54,7 +54,9 @@ function useTinybaseUow(initialDb: IStore = store) {
 	}
 }
 
-export async function createTinybaseUow() {
+async function createTinybaseUow() {
 	await waitForDb
 	return useTinybaseUow()
 }
+
+export const uow = await createTinybaseUow()
