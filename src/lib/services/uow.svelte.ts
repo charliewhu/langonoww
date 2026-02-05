@@ -59,4 +59,5 @@ async function createTinybaseUow() {
 	return useTinybaseUow()
 }
 
+export type TinybaseUow = ReturnType<typeof useTinybaseUow>
 export const uow = await createTinybaseUow()

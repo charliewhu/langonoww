@@ -28,17 +28,17 @@ vi.mock('$app/state', async () => {
 describe('text reader', () => {
 	const title = 'title'
 	const content = 'new content'
-	let u: services.IUnitOfWork
 	let text: domain.Text | undefined
 	let id: string | undefined
 	let reader: domain.Reader
 
 	beforeEach(async () => {
-		u = uow
-		reader = new domain.Reader('1')
-		u.readers.save(reader)
+		uow.db.delTables() // uow data must be empty
 
-		text = await services.createText(u, '1', { title, content })
+		reader = new domain.Reader('1')
+		uow.readers.save(reader)
+
+		text = await services.createText(uow, '1', { title, content })
 		id = text.id
 		mockPageParams.id = id
 
@@ -58,29 +58,28 @@ describe('text reader', () => {
 		flushSync()
 
 		// expect difficult-words to be 1
-		const diffWords = await services.getDifficultWordsCount(u)
+		const diffWords = await services.getDifficultWordsCount(uow)
 		expect(diffWords).toEqual(1)
 	})
 
-	it.skip('clicking a difficult word adds it to known words', async () => {
-		if (!id) return
-
-		console.log(reader.words[0])
-		// await services.markWordDifficult(u, reader.words[0].id)
+	it('clicking a difficult word adds it to known words', async () => {
+		if (!text) return
+		await services.markWordDifficult(uow, text.words[0].word!.id)
+		let diffWords = await services.getDifficultWordsCount(uow)
+		expect(diffWords).toEqual(1)
+		expect(await services.getKnownWordsCount(uow)).toEqual(0)
 
 		render(Page)
-
-		let diffWords = await services.getDifficultWordsCount(u)
-		expect(diffWords).toEqual(1)
 
 		await pageTest.getByRole('button', { name: content.split(' ')[0] }).click()
 		flushSync()
 
 		// expect difficult-words to be 0
-		diffWords = await services.getDifficultWordsCount(u)
-		expect(diffWords).toEqual(1)
+		diffWords = await services.getDifficultWordsCount(uow)
+		expect(diffWords).toEqual(0)
 
-		const knownWords = await services.getKnownWordsCount(u)
+		// known words still should be incremented
+		const knownWords = await services.getKnownWordsCount(uow)
 		expect(knownWords).toEqual(1)
 	})
 })
