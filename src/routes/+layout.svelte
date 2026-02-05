@@ -2,11 +2,10 @@
 	import './layout.css'
 	import favicon from '$lib/assets/favicon.svg'
 	import * as services from '$lib/services'
-	import { createTinybaseUow } from '$lib/services/uow.svelte'
+	import { uow } from '$lib/services/uow.svelte'
 
 	let { children } = $props()
 
-	let uow = $state(await createTinybaseUow())
 	let knownWordsCount = $derived(services.getKnownWordsCount(uow))
 	let difficultWordsCount = $derived(services.getDifficultWordsCount(uow))
 </script>

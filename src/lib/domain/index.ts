@@ -94,12 +94,6 @@ class TextWord {
 		this.word = word
 	}
 
-	markAsKnown() {
-		if (!this.word) return
-
-		this.word.status = 'known'
-	}
-
 	markAsDifficult() {
 		if (!this.word) return
 
@@ -120,5 +114,8 @@ export class Word {
 
 	static isWord(raw: string) {
 		return /^[\p{L}'-]+$/u.test(raw)
+	}
+	markAsKnown() {
+		this.status = 'known'
 	}
 }

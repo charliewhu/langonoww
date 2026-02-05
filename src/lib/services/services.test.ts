@@ -29,11 +29,14 @@ describe('services', () => {
 		})
 
 		it('doesnt override difficult words', async () => {
-			// create words
-			// add difficult word
-			// mark complete
-			// difficult word remains
-			expect(1).toEqual(0)
+			const newText = await services.createText(uow, readerId, { title, content })
+			await services.markWordDifficult(uow, newText.words[0].word!.id)
+
+			expect(await services.getDifficultWordsCount(uow)).toEqual(1)
+
+			await services.completeText(uow, newText.id)
+
+			expect(await services.getDifficultWordsCount(uow)).toEqual(1)
 		})
 	})
 
@@ -58,6 +61,18 @@ describe('services', () => {
 
 	it('can mark words as difficult', async () => {
 		const newText = await services.createText(uow, readerId, { title, content })
+		await services.markWordDifficult(uow, newText.words[0].word!.id)
+
+		const diffWords = uow.readers.get('1')
+		expect(diffWords?.words[0].status).toEqual('difficult')
+		const c = await services.getDifficultWordsCount(uow)
+
+		expect(c).toEqual(1)
+	})
+
+	it('can mark duplicate words as difficult', async () => {
+		// when we have the same word twice in a text
+		const newText = await services.createText(uow, readerId, { title, content: 'repeat repeat' })
 		await services.markWordDifficult(uow, newText.words[0].word!.id)
 
 		const diffWords = uow.readers.get('1')
@@ -161,6 +176,16 @@ describe('services', () => {
 		expect(savedReader.words[1].name).toEqual('world')
 		expect(savedReader.words[0].status).toEqual('unknown')
 		expect(savedReader.words[1].status).toEqual('unknown')
+	})
+
+	it('doesnt create duplicate words', async () => {
+		const content = 'Hello hello'
+		await services.createText(uow, readerId, { title, content })
+		const savedReader = uow.readers.get(readerId)
+
+		if (!savedReader) throw new Error()
+		expect(savedReader.words.length).toEqual(1)
+		expect(savedReader.words[0].name).toEqual('hello')
 	})
 
 	it('handles contractions', async () => {

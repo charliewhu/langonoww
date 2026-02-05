@@ -1,8 +1,7 @@
 <script lang="ts">
 	import * as services from '$lib/services'
-	import { createTinybaseUow } from '$lib/services/uow.svelte'
+	import { uow } from '$lib/services/uow.svelte'
 
-	let uow = $state(await createTinybaseUow())
 	let reader = $derived(services.getReader(uow, '1'))
 </script>
 

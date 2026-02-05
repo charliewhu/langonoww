@@ -48,7 +48,6 @@ export async function markWordDifficult(uow: IUnitOfWork, id: string) {
 		if (!word) return
 
 		word.status = 'difficult'
-
 		uow.readers.save(reader)
 		await uow.commit()
 	})
@@ -80,17 +79,30 @@ export async function createText(
 	return text
 }
 
+export async function markWordKnown(uow: IUnitOfWork, id: string) {
+	await uow.execute(async (uow) => {
+		const reader = uow.readers.get('1')
+		if (!reader) throw new Error(`No reader`)
+
+		const word = reader.words.find((w) => w.id === id)
+		if (!word) throw new Error('Cant find text')
+
+		word.markAsKnown()
+
+		uow.readers.save(reader)
+		await uow.commit()
+	})
+}
+
 export async function completeText(uow: IUnitOfWork, id: string) {
 	await uow.execute(async (uow) => {
 		const reader = uow.readers.get('1')
-		if (!reader) {
-			throw new Error(`No item with id: ${id}`)
-		}
+		if (!reader) throw new Error(`No reader`)
 
 		const text = reader.texts.find((t) => t.id === id)
 		if (!text) throw new Error('Cant find text')
 
-		text.words.forEach((w) => w.markAsKnown())
+		text.words.filter((w) => w.word?.status == 'unknown').forEach((w) => w.word!.markAsKnown())
 
 		uow.readers.save(reader)
 		await uow.commit()

@@ -51,7 +51,11 @@ export class TinybaseRepository<S extends [typeof tablesSchema, NoValuesSchema]>
 							order: textWordRow.order!,
 							word,
 						})
-						reader.words.push(word)
+
+						// only create domain object if word with ID isnt found
+						if (!reader.words.find((w) => w.id === word.id)) {
+							reader.words.push(word)
+						}
 					}
 				}
 			})
@@ -70,8 +74,11 @@ export class TinybaseRepository<S extends [typeof tablesSchema, NoValuesSchema]>
 	save(reader: Reader) {
 		// Persist reader
 		reader.texts.forEach((t: Text) => {
+			// create text
 			this.db.setRow('texts', t.id, { reader: reader.id, title: t.title, content: t.content })
+
 			t.words.forEach((w) => {
+				// save text_word
 				this.db.setRow('text_words', w.id, {
 					text: t.id,
 					word: w.word ? w.word.id : undefined,
@@ -80,6 +87,7 @@ export class TinybaseRepository<S extends [typeof tablesSchema, NoValuesSchema]>
 				})
 			})
 		})
+
 		reader.words.forEach((w: Word) => {
 			this.db.setRow('words', w.id, { reader: reader.id, name: w.name, status: w.status })
 		})

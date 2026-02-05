@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation'
 	import { resolve } from '$app/paths'
 
-	import { createTinybaseUow } from '$lib/services/uow.svelte'
+	import { uow } from '$lib/services/uow.svelte'
 	import * as services from '$lib/services'
 
 	let title = $state('')
@@ -10,7 +10,6 @@
 
 	async function addText(event: Event) {
 		event.preventDefault()
-		const uow = await createTinybaseUow()
 		services.createText(uow, '1', { title, content })
 		goto(resolve('/texts'))
 	}
