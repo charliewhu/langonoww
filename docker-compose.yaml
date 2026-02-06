@@ -1,0 +1,18 @@
+services:
+  sveltekit:
+    build: .
+    command: PORT=4000 node --env-file=.env build
+    volumes:
+      - ./src/:/app/src/
+    env_file:
+      - .env
+    labels:
+      caddy: langonoww.charlieavery.site
+      caddy.reverse_proxy: "{{upstreams 4000}}"
+    networks:
+      - web
+    restart: unless-stopped
+
+networks:
+  web:
+    external: true
