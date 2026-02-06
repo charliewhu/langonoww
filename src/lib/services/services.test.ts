@@ -154,8 +154,11 @@ describe('services', () => {
 		const content = 'Hello, world! This is a test.'
 		const text = await services.createText(uow, readerId, { title, content })
 
+		const reader = services.getReader(uow, readerId)
+
 		expect(text).toBeDefined()
-		expect(text!.words).toHaveLength(13)
+		expect(reader.words).toHaveLength(6)
+		expect(text!.words).toHaveLength(14)
 		expect(text!.words[0].name).toEqual('Hello')
 		expect(text!.words[1].name).toEqual(',')
 		expect(text!.words[2].name).toEqual(' ')

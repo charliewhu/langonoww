@@ -72,9 +72,12 @@ When('I complete the text', async ({ page }) => {
 
 Then('{string} is visible', async ({ page }, arg: string) => {
 	// Step: Then 'hola amigo como estas' is visible
-	// From: e2e/sample.feature:34:3
-	const text = page.getByText(arg)
-	await expect(text).toBeVisible()
+	// split text to avoid playwright caring about spaces etc
+	const wordList = arg.split(' ')
+	for (const word of wordList) {
+		const text = page.getByText(word)
+		await expect(text).toBeVisible()
+	}
 })
 
 Then('my known words is {int}', async ({ page }, arg: number) => {

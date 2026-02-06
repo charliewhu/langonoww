@@ -66,7 +66,8 @@ export class Text {
 	}
 
 	parseRawContent() {
-		return this.content.split(/(?=[\s:;,!?"])|(?<=[\s:;,!?"])/).filter(Boolean)
+		const content = this.content.split(/(?=[\s:;,!?."])|(?<=[\s:;,!?."])/).filter(Boolean)
+		return content
 	}
 }
 

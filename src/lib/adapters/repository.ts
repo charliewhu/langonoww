@@ -1,4 +1,4 @@
-import { Reader, Text, Word } from '$lib/domain'
+import * as domain from '$lib/domain'
 import type { NoValuesSchema, Store } from 'tinybase/with-schemas'
 import type { tablesSchema } from './db'
 
@@ -25,12 +25,12 @@ export class TinybaseRepository<S extends [typeof tablesSchema, NoValuesSchema]>
 		const dbTextWords = this.db.getTable('text_words')
 
 		// construct domain Reader object
-		const reader = new Reader(id)
+		const reader = new domain.Reader(id)
 
 		// add nested objects
 		// TODO: performance concerns here?
 		const texts = Object.entries(dbTexts).map(([textId, row]) => {
-			const text = new Text({ id: textId, title: row.title!, content: row.content! })
+			const text = new domain.Text({ id: textId, title: row.title!, content: row.content! })
 
 			// Add text words for this text
 			const textWordsForText = Object.entries(dbTextWords).filter(
@@ -40,24 +40,25 @@ export class TinybaseRepository<S extends [typeof tablesSchema, NoValuesSchema]>
 			textWordsForText.forEach(([textWordId, textWordRow]) => {
 				// Find the corresponding word
 				const wordId = textWordRow.word
+				let word: domain.Word | undefined
 				if (wordId) {
 					const wordRow = dbWords[wordId]
 					if (wordRow) {
-						const word = new Word({ id: wordId, name: wordRow.name! })
+						word = new domain.Word({ id: wordId, name: wordRow.name! })
 						word.status = wordRow.status as 'known' | 'unknown' | 'difficult'
-						text.addWord({
-							id: textWordId,
-							name: textWordRow.name!,
-							order: textWordRow.order!,
-							word,
-						})
 
 						// only create domain object if word with ID isnt found
-						if (!reader.words.find((w) => w.id === word.id)) {
+						if (!reader.words.find((w) => w.id === word!.id)) {
 							reader.words.push(word)
 						}
 					}
 				}
+				text.addWord({
+					id: textWordId,
+					name: textWordRow.name!,
+					order: textWordRow.order!,
+					word,
+				})
 			})
 
 			return text
